@@ -1,0 +1,1 @@
+start java -jar C:\KKK\springimage\target\springimage-1.0-SNAPSHOT.jar 
