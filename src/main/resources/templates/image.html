@@ -44,7 +44,7 @@ div.gallery img {
 
 	<div th:each="file : ${files}">
 		<div class="gallery">
-			<a target="_blank" th:href="${file}"> <img th:src="${file}" />
+			<a target="_blank" th:href="${file}"> <img th:src="@{'data:image/jpeg;base64,'+${file}}" />
 			</a>
 		</div>
 	</div>

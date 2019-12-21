@@ -1,12 +1,18 @@
 package com.zetcode.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,8 +71,7 @@ public class MyController {
     }
  
     @RequestMapping(value = { "/addPerson" }, method = RequestMethod.POST)
-    public String savePerson(Model model, //
-            @ModelAttribute("personForm") PersonForm personForm) {
+    public String savePerson(Model model, @ModelAttribute("personForm") PersonForm personForm) {
  
         String firstName = personForm.getFirstName();
         String lastName = personForm.getLastName();
@@ -116,14 +121,51 @@ public class MyController {
                 .body(new InputStreamResource(kek.getInputStream()));
     }
 
-    @GetMapping("/search")
-    public String findPhotos(@RequestParam("name") String name, Model model)  {
+    @GetMapping("/image")
+    public String findPhotos(Model model)  {
+        List<String> userImages = new ArrayList<>();
+        //userImages.add("image/sid.jpg");
+        //userImages.add("file:C:/Documents and Settings/admin/AppData/Local/Temp/a456eaa5-5d96-4250-b2f4-cc1efeac0baf.jpg");
+
+        File dir = new File("C:\\KKK\\springimage\\test");
+
+        for (File file:dir.listFiles()) {
+            if (file.getName().endsWith(".jpg")) {
+                try {
+                    FileInputStream fileInputStreamReader = new FileInputStream(file);
+                    byte[] bytes = new byte[(int)file.length()];
+                    fileInputStreamReader.read(bytes);
+                    userImages.add(new String(Base64.encodeBase64(bytes), "UTF-8"));
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+
+        try {
+        //    new InputStreamResource(kK.getInputStream());
+            File file = new File("C:\\Documents and Settings\\admin\\AppData\\Local\\Temp\\a456eaa5-5d96-4250-b2f4-cc1efeac0baf.jpg");
+            FileInputStream fileInputStreamReader = new FileInputStream(file);
+            byte[] bytes = new byte[(int)file.length()];
+            fileInputStreamReader.read(bytes);
+            userImages.add(new String(Base64.encodeBase64(bytes), "UTF-8"));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+
+
 
 
         model.addAttribute("files", userImages);
-        model.addAttribute("user", user.getName());
 
-        return "Image";
+        return "image";
 
     }
 
