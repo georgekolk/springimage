@@ -5,14 +5,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.zetcode.FileResponse;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +23,15 @@ import org.springframework.web.bind.annotation.*;
 
 import com.zetcode.PersonForm;
 import com.zetcode.Person;
+import com.zetcode.StorageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
 //@RestController
@@ -33,6 +39,12 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 public class MyController {
 
    private static List<Person> persons = new ArrayList<Person>();
+
+    private StorageService storageService;
+
+    public MyController(StorageService storageService) {
+        this.storageService = storageService;
+    }
  
     static {
         persons.add(new Person("Bill", "Gates"));
@@ -45,13 +57,13 @@ public class MyController {
     @Value("${error.message}")
     private String errorMessage;
  
-    @RequestMapping(value = { "/index" }, method = RequestMethod.GET)
+    /*@RequestMapping(value = { "/index" }, method = RequestMethod.GET)
     public String index(Model model) {
  
         model.addAttribute("message", message);
  
         return "index";
-    }
+    }*/
  
     @RequestMapping(value = { "/personList" }, method = RequestMethod.GET)
     public String personList(Model model) {
@@ -129,7 +141,7 @@ public class MyController {
 
         File dir = new File("C:\\KKK\\springimage\\test");
 
-        for (File file:dir.listFiles()) {
+        /*for (File file:dir.listFiles()) {
             if (file.getName().endsWith(".jpg")) {
                 try {
                     FileInputStream fileInputStreamReader = new FileInputStream(file);
@@ -142,7 +154,7 @@ public class MyController {
                 }
 
             }
-        }
+        }*/
 
         try {
         //    new InputStreamResource(kK.getInputStream());
@@ -155,13 +167,6 @@ public class MyController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
-
-
-
-
 
         model.addAttribute("files", userImages);
 
@@ -176,10 +181,49 @@ public class MyController {
         return "Hello there!";
     }
 
-    @GetMapping(value="/", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String index() {
+    @GetMapping(value="/")
+    public String index(Model model) {
+        model.addAttribute("files", storageService.loadAll().map(
+                path -> ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/download/")
+                        .path(path.getFileName().toString())
+                        .toUriString())
+                .collect(Collectors.toList()));
 
-        return "This is Home page";
+        return "listFiles";
+    }
+
+    @GetMapping("/download/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> downloadFile(@PathVariable String filename) {
+
+        Resource resource = storageService.loadAsResource(filename);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+
+    @PostMapping("/upload-file")
+    @ResponseBody
+    public FileResponse uploadFile(@RequestParam("file") MultipartFile file) {
+        String name = storageService.store(file);
+
+        String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/download/")
+                .path(name)
+                .toUriString();
+
+        return new FileResponse(name, uri, file.getContentType(), file.getSize());
+    }
+
+    @PostMapping("/upload-multiple-files")
+    @ResponseBody
+    public List<FileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
+        return Arrays.stream(files)
+                .map(file -> uploadFile(file))
+                .collect(Collectors.toList());
     }
 
 
