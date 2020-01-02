@@ -9,8 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.zetcode.FileResponse;
+import com.zetcode.*;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -21,9 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-import com.zetcode.PersonForm;
-import com.zetcode.Person;
-import com.zetcode.StorageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,10 +39,15 @@ public class MyController {
 
    private static List<Person> persons = new ArrayList<Person>();
 
-    private StorageService storageService;
+    Logger logger = LoggerFactory.getLogger(MyController.class);
 
-    public MyController(StorageService storageService) {
+    private StorageService storageService;
+    private InPowerWeEntrustStorageService inPowerWeEntrustStorageService;
+
+
+    public MyController(StorageService storageService, InPowerWeEntrustStorageService inPowerWeEntrustStorageService) {
         this.storageService = storageService;
+        this.inPowerWeEntrustStorageService = inPowerWeEntrustStorageService;
     }
  
     static {
@@ -101,8 +105,7 @@ public class MyController {
     }
 /*-------------------------------------------------------------------------------------------*/
 
-    @RequestMapping(value = "/sid", method = RequestMethod.GET,
-            produces = MediaType.IMAGE_JPEG_VALUE)
+    @RequestMapping(value = "/sid", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<InputStreamResource> getImage() throws IOException {
 
         var imgFile = new ClassPathResource("image/sid.jpg");
@@ -174,7 +177,6 @@ public class MyController {
 
     }
 
-
     @GetMapping(value="/hello", produces = MediaType.TEXT_PLAIN_VALUE)
     public String sayHello() {
 
@@ -186,6 +188,27 @@ public class MyController {
         model.addAttribute("files", storageService.loadAll().map(
                 path -> ServletUriComponentsBuilder.fromCurrentContextPath()
                         .path("/download/")
+                        .path(path.getFileName().toString())
+                        .toUriString())
+                .collect(Collectors.toList()));
+
+        return "listFiles";
+    }
+
+    @GetMapping(value="/getdirs/{blogname}")
+    public String getdirs(Model model, @PathVariable String blogname) {
+
+
+        //logger.trace("A TRACE Message" +  blogname);
+        //logger.debug("A DEBUG Message" +  blogname);
+        //logger.info("An INFO Message" +  blogname);
+        //logger.warn("A WARN Message" +  blogname);
+        logger.error("/getdirs/{"+  blogname + "}");
+
+
+        model.addAttribute("files", inPowerWeEntrustStorageService.loadAll().map(
+                path -> ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/getdirs/" + blogname  + "/")
                         .path(path.getFileName().toString())
                         .toUriString())
                 .collect(Collectors.toList()));

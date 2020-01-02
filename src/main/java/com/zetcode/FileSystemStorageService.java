@@ -1,6 +1,9 @@
 package com.zetcode;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -18,10 +21,13 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
+
+@Primary
 @Service
 public class FileSystemStorageService implements StorageService {
 
     private final Path rootLocation;
+    Logger logger = LoggerFactory.getLogger(FileSystemStorageService.class);
 
     @Autowired
     public FileSystemStorageService(StorageProperties properties) {
@@ -65,10 +71,23 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public Stream<Path> loadAll() {
+        logger.error("loadall" + this.rootLocation);
+
+
         try {
-            return Files.walk(this.rootLocation, 1)
+            /*return Files.walk(this.rootLocation, 1)
                     .filter(path -> !path.equals(this.rootLocation))
-                    .map(this.rootLocation::relativize);
+                    .map(this.rootLocation::relativize);*/
+
+            logger.error("loadall" + this.rootLocation);
+
+
+            return Files.walk(Paths.get("C:/prod/save/explore/tags/dog"), 1)
+                    .filter(path -> !path.equals(Paths.get("C:/prod/save/explore/tags/dog")))
+                    .map(Paths.get("C:/prod/save/explore/tags/dog")::relativize);
+
+
+
         }
         catch (IOException e) {
             throw new StorageException("Failed to read stored files", e);
