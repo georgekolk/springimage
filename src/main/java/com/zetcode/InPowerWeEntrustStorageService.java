@@ -58,11 +58,27 @@ public class InPowerWeEntrustStorageService implements StorageService{
 
     @Override
     public Stream<Path> loadAll() {
-        try {
+        return null;
+    }
 
-            return Files.walk(Paths.get("./uploads"), 1)
-                    .filter(path -> !path.equals(Paths.get("./uploads")))
-                    .map(Paths.get("./uploads")::relativize);
+    @Override
+    public Path load(String filename) {
+        return null;
+    }
+
+    @Override
+    public Resource loadAsResource(String filename) {
+        return null;
+    }
+
+    //@Override
+    public Stream<Path> loadAll(String blogname) {
+        try {
+            logger.error("loadAll InPower Service" + Paths.get("./" + blogname));
+
+            return Files.walk(Paths.get("./"+blogname), 1)
+                    .filter(path -> !path.equals(Paths.get("./"+blogname)))
+                    .map(Paths.get("./"+blogname)::relativize);
 
         } catch (IOException e) {
 
@@ -74,13 +90,13 @@ public class InPowerWeEntrustStorageService implements StorageService{
     }
 
 
-    public Path load(String filename) {
-        return rootLocation.resolve(filename);
+    public Path load(String filename, String blogname) {
+        return Paths.get("./"+blogname).resolve(filename);
     }
 
-    public Resource loadAsResource(String filename) {
+    public Resource loadAsResource(String filename, String blogname) {
         try {
-            Path file = load(filename);
+            Path file = load(filename, blogname);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;

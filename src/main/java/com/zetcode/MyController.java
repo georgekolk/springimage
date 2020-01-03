@@ -43,11 +43,12 @@ public class MyController {
 
     private StorageService storageService;
     private InPowerWeEntrustStorageService inPowerWeEntrustStorageService;
+    private SQLiteService sqLiteService;
 
-
-    public MyController(StorageService storageService, InPowerWeEntrustStorageService inPowerWeEntrustStorageService) {
+    public MyController(StorageService storageService, InPowerWeEntrustStorageService inPowerWeEntrustStorageService, SQLiteService sqLiteService) {
         this.storageService = storageService;
         this.inPowerWeEntrustStorageService = inPowerWeEntrustStorageService;
+        this.sqLiteService = sqLiteService;
     }
  
     static {
@@ -198,15 +199,9 @@ public class MyController {
     @GetMapping(value="/getdirs/{blogname}")
     public String getdirs(Model model, @PathVariable String blogname) {
 
-
-        //logger.trace("A TRACE Message" +  blogname);
-        //logger.debug("A DEBUG Message" +  blogname);
-        //logger.info("An INFO Message" +  blogname);
-        //logger.warn("A WARN Message" +  blogname);
         logger.error("/getdirs/{"+  blogname + "}");
 
-
-        model.addAttribute("files", inPowerWeEntrustStorageService.loadAll().map(
+        model.addAttribute("files", inPowerWeEntrustStorageService.loadAll(blogname).map(
                 path -> ServletUriComponentsBuilder.fromCurrentContextPath()
                         .path("/getdirs/" + blogname  + "/")
                         .path(path.getFileName().toString())
@@ -214,6 +209,18 @@ public class MyController {
                 .collect(Collectors.toList()));
 
         return "listFiles";
+    }
+
+    @GetMapping("/getdirs/{blogname}/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> downloadFileFromBlog(@PathVariable String filename, @PathVariable String blogname) {
+
+        Resource resource = inPowerWeEntrustStorageService.loadAsResource(filename, blogname);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
     @GetMapping("/download/{filename:.+}")

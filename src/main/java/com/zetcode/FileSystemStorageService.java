@@ -79,12 +79,12 @@ public class FileSystemStorageService implements StorageService {
                     .filter(path -> !path.equals(this.rootLocation))
                     .map(this.rootLocation::relativize);*/
 
-            logger.error("loadall" + this.rootLocation);
+            logger.error("loadAll original Service" + this.rootLocation);
 
 
-            return Files.walk(Paths.get("C:/prod/save/explore/tags/dog"), 1)
-                    .filter(path -> !path.equals(Paths.get("C:/prod/save/explore/tags/dog")))
-                    .map(Paths.get("C:/prod/save/explore/tags/dog")::relativize);
+            return Files.walk(this.rootLocation, 1)
+                    .filter(path -> !path.equals(this.rootLocation))
+                    .map(this.rootLocation::relativize);
 
 
 
