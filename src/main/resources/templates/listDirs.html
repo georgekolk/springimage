@@ -31,5 +31,24 @@ div.gallery img {
     </div>
 </div>
 
+
+<table class="table table-striped table-dark">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Url</th>
+      <th scope="col">Last Update</th>
+    </tr>
+  </thead>
+    <tbody>
+    <tr th:each ="blog : ${dirs}" scope="row">
+        <td th:utext="${blog.name}">...</td>
+        <td th:utext="${blog.url}">...</td>
+        <td th:utext="${blog.lastUpdate}">...</td>
+    </tr>
+  </tbody>
+</table>
+
+
 </body>
 </html>

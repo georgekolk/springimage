@@ -9,7 +9,8 @@ import java.util.List;
 public class StorageProperties {
 
     private String location;
-    private List<String> dirs = new ArrayList<>();
+    private List<String> dirs;
+    private String storageDir;
 
 
     public String getLocation() {
@@ -24,5 +25,7 @@ public class StorageProperties {
         return dirs;
     }
 
-
+    public void setDirs(List<String> dirs) {
+        this.dirs = dirs;
+    }
 }

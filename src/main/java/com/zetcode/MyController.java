@@ -38,6 +38,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class MyController {
 
    private static List<Person> persons = new ArrayList<Person>();
+   private static List<Blog> dirs = new ArrayList<Blog>();
+
 
     Logger logger = LoggerFactory.getLogger(MyController.class);
 
@@ -54,6 +56,13 @@ public class MyController {
     static {
         persons.add(new Person("Bill", "Gates"));
         persons.add(new Person("Steve", "Jobs"));
+
+        dirs.add(new Blog("Cat", "http://localhost:8080/getdirs/cat","date"));
+        dirs.add(new Blog("Dog", "http://localhost:8080/getdirs/dog","date"));
+        dirs.add(new Blog("Deer", "http://localhost:8080/getdirs/deer","date"));
+        dirs.add(new Blog("Mouse", "http://localhost:8080/getdirs/mouse","date"));
+        dirs.add(new Blog("Pigeon", "http://localhost:8080/getdirs/pigeon","date"));
+
     }
  
     @Value("${welcome.message}")
@@ -127,14 +136,13 @@ public class MyController {
                 .body(new InputStreamResource(kek.getInputStream()));
     }                                                   
 
-    @RequestMapping(value = "/gallery", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<InputStreamResource> gallery() throws IOException {
+    @RequestMapping(value = "/gallery", method = RequestMethod.GET)
+    public String gallery(Model model) throws IOException {
 
-          var kek = new ClassPathResource("file:C:/Documents and Settings/admin/AppData/Local/Temp/a456eaa5-5d96-4250-b2f4-cc1efeac0baf.jpg");
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(new InputStreamResource(kek.getInputStream()));
+        model.addAttribute("dirs", dirs);
+
+        return "listDirs";
+
     }
 
     @GetMapping("/image")
@@ -201,14 +209,23 @@ public class MyController {
 
         logger.error("/getdirs/{"+  blogname + "}");
 
-        model.addAttribute("files", inPowerWeEntrustStorageService.loadAll(blogname).map(
-                path -> ServletUriComponentsBuilder.fromCurrentContextPath()
-                        .path("/getdirs/" + blogname  + "/")
-                        .path(path.getFileName().toString())
-                        .toUriString())
-                .collect(Collectors.toList()));
+        if (!inPowerWeEntrustStorageService.checkMap(blogname.toLowerCase())){
 
-        return "listFiles";
+                model.addAttribute("message", "OMFG! NOT FOUND DIRS");
+
+                return "index";
+
+        }else {
+
+            model.addAttribute("files", inPowerWeEntrustStorageService.loadAll(blogname).map(
+                    path -> ServletUriComponentsBuilder.fromCurrentContextPath()
+                            .path("/getdirs/" + blogname + "/")
+                            .path(path.getFileName().toString())
+                            .toUriString())
+                    .collect(Collectors.toList()));
+
+            return "listFiles";
+        }
     }
 
     @GetMapping("/getdirs/{blogname}/{filename:.+}")

@@ -20,21 +20,25 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
 public class InPowerWeEntrustStorageService implements StorageService{
 
     private final Path rootLocation;
-    private final List dirs;
+    private final List<String> dirs;
     Logger logger = LoggerFactory.getLogger(InPowerWeEntrustStorageService.class);
-
+    private final HashMap<String, Path> dirLocations;
 
     @Autowired
     public InPowerWeEntrustStorageService(StorageProperties properties) {
         this.rootLocation = Paths.get(properties.getLocation());
         this.dirs = properties.getDirs();
+
+        dirLocations = new HashMap<String, Path>();
     }
 
     @PostConstruct
@@ -42,13 +46,23 @@ public class InPowerWeEntrustStorageService implements StorageService{
         try {
             Files.createDirectories(rootLocation);
 
-            for (Object dir:dirs) {
+            for (String dir:dirs) {
                 logger.error("dirs " + dir.toString());
+                dirLocations.put(dir.substring(dir.lastIndexOf("/")+1), Paths.get(dir));
+
             }
+
+            logger.error("dirs size " + dirs.size());
+            logger.error("rootLocation " + rootLocation);
 
         } catch (IOException e) {
             throw new StorageException("Could not initialize storage location", e);
         }
+    }
+
+
+    public boolean checkMap(String mapKey){
+        return dirLocations.containsKey(mapKey);
     }
 
     @Override
@@ -76,9 +90,14 @@ public class InPowerWeEntrustStorageService implements StorageService{
         try {
             logger.error("loadAll InPower Service" + Paths.get("./" + blogname));
 
-            return Files.walk(Paths.get("./"+blogname), 1)
+            /*return Files.walk(Paths.get("./"+blogname), 1)
                     .filter(path -> !path.equals(Paths.get("./"+blogname)))
-                    .map(Paths.get("./"+blogname)::relativize);
+                    .map(Paths.get("./"+blogname)::relativize);*/
+
+                      return Files.walk(dirLocations.get(blogname), 1)
+                    .filter(path -> !path.equals(dirLocations.get(blogname)))
+                    .map(dirLocations.get(blogname)::relativize);
+
 
         } catch (IOException e) {
 
@@ -91,7 +110,7 @@ public class InPowerWeEntrustStorageService implements StorageService{
 
 
     public Path load(String filename, String blogname) {
-        return Paths.get("./"+blogname).resolve(filename);
+        return dirLocations.get(blogname).resolve(filename);
     }
 
     public Resource loadAsResource(String filename, String blogname) {
