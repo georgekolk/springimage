@@ -37,7 +37,6 @@ public class InPowerWeEntrustStorageService implements StorageService{
     public InPowerWeEntrustStorageService(StorageProperties properties) {
         this.rootLocation = Paths.get(properties.getLocation());
         this.dirs = properties.getDirs();
-
         dirLocations = new HashMap<String, Path>();
     }
 
@@ -52,14 +51,15 @@ public class InPowerWeEntrustStorageService implements StorageService{
 
             }
 
-            logger.error("dirs size " + dirs.size());
-            logger.error("rootLocation " + rootLocation);
 
         } catch (IOException e) {
             throw new StorageException("Could not initialize storage location", e);
         }
     }
 
+    public HashMap<String, Path> getDirLocations(){
+        return this.dirLocations;
+    }
 
     public boolean checkMap(String mapKey){
         return dirLocations.containsKey(mapKey);
