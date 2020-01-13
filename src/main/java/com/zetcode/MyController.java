@@ -58,9 +58,6 @@ public class MyController {
     static {
         persons.add(new Person("Bill", "Gates"));
         persons.add(new Person("Steve", "Jobs"));
-
-
-
     }
  
     @Value("${welcome.message}")

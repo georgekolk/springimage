@@ -22,7 +22,7 @@ function fire_ajax_submit() {
     $.ajax({
         type: "POST",
         contentType: "application/json",
-        url: "/api/search",
+        url: "api/search",
         data: JSON.stringify(search),
         dataType: 'json',
         cache: false,
@@ -35,6 +35,8 @@ function fire_ajax_submit() {
 
             console.log("SUCCESS : ", data);
             $("#btn-search").prop("disabled", false);
+
+            $( "#myAjaxContent" ).hide( "slow",);
 
         },
         error: function (e) {
