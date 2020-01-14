@@ -23,6 +23,7 @@ public class SearchController {
 
         AjaxResponseBody result = new AjaxResponseBody();
 
+        System.out.println("search:::: " + search.toString());
         //If error, just return a 400 bad request, along with the error message
         if (errors.hasErrors()) {
 

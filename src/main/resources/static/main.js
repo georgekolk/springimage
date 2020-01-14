@@ -1,15 +1,28 @@
 $(document).ready(function () {
 
     $("#search-form").submit(function (event) {
-
         //stop submit the form, we will post it manually.
         event.preventDefault();
-
         fire_ajax_submit();
-
     });
 
+     $("#approve-btn").click(function (event) {
+            //stop submit the form, we will post it manually.
+            event.preventDefault();
+            //console.log(this.getAttribute('data-type'));
+            $.ajax({
+                    url: '/remove/blog/'+this.getAttribute('data-type'),
+                    type: 'DELETE',
+                    success: function(result) {
+                        console.log(this.getAttribute('data-type'));
+
+                    }
+                });
+        });
 });
+
+
+
 
 function fire_ajax_submit() {
 

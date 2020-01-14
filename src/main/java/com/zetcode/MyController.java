@@ -19,6 +19,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -128,6 +129,18 @@ public class MyController {
         model.addAttribute("dirs", dirs);
         return "listDirs";
     }
+
+    @DeleteMapping(value="/remove/{blogname}/{filename}")
+    public ResponseEntity<Long> removePhotos(@PathVariable String filename, @PathVariable String blogname ){
+
+        System.out.println(filename + " " + blogname);
+        //var isRemoved = postService.delete(id);
+
+
+
+        return new ResponseEntity<>(666l, HttpStatus.OK);
+    }
+
 
     @GetMapping(value="/getdirs/{blogname}")
     public String getdirs(Model model, @PathVariable String blogname) {
