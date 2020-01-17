@@ -6,15 +6,20 @@ $(document).ready(function () {
         fire_ajax_submit();
     });
 
-     $("#approve-btn").click(function (event) {
+     $(".btn.btn-primary.btn-sm").click(function (event) {
             //stop submit the form, we will post it manually.
             event.preventDefault();
             //console.log(this.getAttribute('data-type'));
+            var dataType = $(this).attr("data-type");
+            var blog = $(this).attr("blog");
+
+            console.log(dataType);
             $.ajax({
-                    url: '/remove/blog/'+this.getAttribute('data-type'),
+                    url: '/remove/' + blog + '/'+ dataType,
                     type: 'DELETE',
                     success: function(result) {
-                        console.log(this.getAttribute('data-type'));
+                        console.log("Lol_kek: ", dataType);
+                        $( "div.gallery#" + dataType).hide( "slow",);
 
                     }
                 });

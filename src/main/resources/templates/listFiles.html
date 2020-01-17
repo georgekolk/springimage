@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8"></meta>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"></meta>
-    <script src="/jquery-3.1.1.slim.min.js"></script>
-    <script src="/tether.min.js"></script>
-    <script src="/bootstrap.min.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+
     <style>
 div.gallery {
 	margin: 15px;
@@ -20,18 +20,24 @@ div.gallery img {
 }
 </style>
     <link href="/bootstrap.min.css" rel="stylesheet"></link>
-    <link href="/navbar-top-fixed.css" rel="stylesheet"></link>
+
+    <link rel="stylesheet" type="text/css" href="/bootstrap.min.css"/>
 </head>
 <body>
 
 <div th:each="file : ${files}">
-    <div class="gallery">
-        <a target="_blank" th:href="${file}"> <img th:src="${file}" />
+    <div class="gallery" th:id="${file.fileNameId}">
+        <a target="_blank" th:href="${file.URI}"> <img th:src="${file.URI}" />
         </a>
-        <button type="button" class="btn btn-primary btn-sm">Approve</button>
-        <button type="button" class="btn btn-danger btn-sm">Delete</button>
+
+        <!-- #strings.endsWith(name,endingFragment) #strings.substringAfter(name,prefix) #httpServletRequest.requestURI-->
+        <button type="button" class="btn btn-primary btn-sm" id="approve-btn" th:blog="${file.blog}" th:data-type="${file.fileNameId}">Approve</button>
+        <button type="button" class="btn btn-danger btn-sm" id="delete-btn" th:data-type="${#strings.substringAfter(file,#httpServletRequest.requestURI)}">Delete</button>
     </div>
 </div>
+
+<script type="text/javascript" src="/jquery.min.js"></script>
+<script type="text/javascript" src="/main.js"></script>
 
 </body>
 </html>

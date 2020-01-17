@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -42,19 +43,12 @@ public class InPowerWeEntrustStorageService implements StorageService{
 
     @PostConstruct
     public void init() {
-        try {
-            Files.createDirectories(rootLocation);
 
             for (String dir:dirs) {
                 logger.error("dirs " + dir.toString());
                 dirLocations.put(dir.substring(dir.lastIndexOf("/")+1), Paths.get(dir));
-
             }
 
-
-        } catch (IOException e) {
-            throw new StorageException("Could not initialize storage location", e);
-        }
     }
 
     public HashMap<String, Path> getDirLocations(){
@@ -85,27 +79,22 @@ public class InPowerWeEntrustStorageService implements StorageService{
         return null;
     }
 
-    //@Override
-    public Stream<Path> loadAll(String blogname) {
+    public List<ImageFile> loadAll(String blogname) {
         try {
-            logger.error("loadAll InPower Service" + Paths.get("./" + blogname));
 
-            /*return Files.walk(Paths.get("./"+blogname), 1)
-                    .filter(path -> !path.equals(Paths.get("./"+blogname)))
-                    .map(Paths.get("./"+blogname)::relativize);*/
-
-                      return Files.walk(dirLocations.get(blogname), 1)
+            /*return Files.walk(dirLocations.get(blogname), 1)
                     .filter(path -> !path.equals(dirLocations.get(blogname)))
-                    .map(dirLocations.get(blogname)::relativize);
+                    .map(dirLocations.get(blogname)::relativize);*/
 
+            return Files.walk(dirLocations.get(blogname), 1)
+                    .filter(path -> !path.equals(dirLocations.get(blogname)))
+                    //.map(Paths.get("C:/jHateSMMTemp/asdasd")::relativize)
+                    .map(ImageFile::new).collect(Collectors.toList());
 
         } catch (IOException e) {
-
             e.printStackTrace();
-
             throw new StorageException("Failed to read stored files", e);
         }
-
     }
 
 
@@ -117,15 +106,13 @@ public class InPowerWeEntrustStorageService implements StorageService{
         try {
             Path file = load(filename, blogname);
             Resource resource = new UrlResource(file.toUri());
+
             if (resource.exists() || resource.isReadable()) {
                 return resource;
+            } else {
+                throw new FileNotFoundException("Could not read file: " + filename);
             }
-            else {
-                throw new FileNotFoundException(
-                        "Could not read file: " + filename);
-            }
-        }
-        catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             throw new FileNotFoundException("Could not read file: " + filename, e);
         }
     }

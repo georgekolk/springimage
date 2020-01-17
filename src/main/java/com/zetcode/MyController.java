@@ -40,6 +40,7 @@ public class MyController {
 
    private static List<Person> persons = new ArrayList<Person>();
    private static List<Blog> dirs = new ArrayList<Blog>();
+    private static List<ImageFile> imageFileList = new ArrayList<ImageFile>();
 
 
     Logger logger = LoggerFactory.getLogger(MyController.class);
@@ -154,13 +155,25 @@ public class MyController {
                 return "index";
 
         }else {
-
-            model.addAttribute("files", inPowerWeEntrustStorageService.loadAll(blogname.toLowerCase()).map(
+List<ImageFile> imageFileList =  inPowerWeEntrustStorageService.loadAll(blogname.toLowerCase());
+            /*model.addAttribute("files", inPowerWeEntrustStorageService.loadAll(blogname.toLowerCase()).map(
                     path -> ServletUriComponentsBuilder.fromCurrentContextPath()
                             .path("/getdirs/" + blogname + "/")
                             .path(path.getFileName().toString())
                             .toUriString())
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList()));*/
+
+
+            for (ImageFile imageFile: imageFileList) {
+                imageFile.setURI(ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/getdirs/" + blogname + "/")
+                        .path(imageFile.getPath().getFileName().toString())
+                        .toUriString());
+                imageFile.setBlog(blogname);
+                imageFile.setFileNameId(imageFile.getFileName().substring(0, imageFile.getFileName().lastIndexOf('.')));
+            }
+
+            model.addAttribute("files", imageFileList);
 
             return "listFiles";
         }
