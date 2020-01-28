@@ -67,14 +67,6 @@ public class MyController {
  
     @Value("${error.message}")
     private String errorMessage;
- 
-    /*@RequestMapping(value = { "/index" }, method = RequestMethod.GET)
-    public String index(Model model) {
- 
-        model.addAttribute("message", message);
- 
-        return "index";
-    }*/
 
     @GetMapping("/lol")
     public String index() {
@@ -131,17 +123,43 @@ public class MyController {
         return "listDirs";
     }
 
+    @RequestMapping(value = "/getdirs/{blogname}/mp4", method = RequestMethod.GET)
+    public String galleryToday(@PathVariable String blogname, Model model) throws IOException {
+
+        logger.error("/getdirs/{"+  blogname + "}");
+
+        if (!inPowerWeEntrustStorageService.checkMap(blogname.toLowerCase())){
+
+            model.addAttribute("message", "OMFG! NOT FOUND DIRS " + blogname);
+
+            return "index";
+
+        }else {
+
+            List<ImageFile> imageFileList = inPowerWeEntrustStorageService.loadAllmp4(blogname);
+
+            for (ImageFile imageFile : imageFileList) {
+                imageFile.setURI(ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/getdirs/" + blogname + "/")
+                        .path(imageFile.getPath().getFileName().toString())
+                        .toUriString());
+                imageFile.setBlog(blogname);
+                imageFile.setFileNameId(imageFile.getFileName().substring(0, imageFile.getFileName().lastIndexOf('.')));
+            }
+
+            model.addAttribute("files", imageFileList);
+
+            return "listVids";
+        }
+    }
+
     @DeleteMapping(value="/remove/{blogname}/{filename}")
     public ResponseEntity<Long> removePhotos(@PathVariable String filename, @PathVariable String blogname ){
 
         System.out.println(filename + " " + blogname);
         //var isRemoved = postService.delete(id);
-
-
-
         return new ResponseEntity<>(666l, HttpStatus.OK);
     }
-
 
     @GetMapping(value="/getdirs/{blogname}")
     public String getdirs(Model model, @PathVariable String blogname) {
@@ -155,14 +173,8 @@ public class MyController {
                 return "index";
 
         }else {
-List<ImageFile> imageFileList =  inPowerWeEntrustStorageService.loadAll(blogname.toLowerCase());
-            /*model.addAttribute("files", inPowerWeEntrustStorageService.loadAll(blogname.toLowerCase()).map(
-                    path -> ServletUriComponentsBuilder.fromCurrentContextPath()
-                            .path("/getdirs/" + blogname + "/")
-                            .path(path.getFileName().toString())
-                            .toUriString())
-                    .collect(Collectors.toList()));*/
 
+            List<ImageFile> imageFileList =  inPowerWeEntrustStorageService.loadAll(blogname);
 
             for (ImageFile imageFile: imageFileList) {
                 imageFile.setURI(ServletUriComponentsBuilder.fromCurrentContextPath()

@@ -82,13 +82,9 @@ public class InPowerWeEntrustStorageService implements StorageService{
     public List<ImageFile> loadAll(String blogname) {
         try {
 
-            /*return Files.walk(dirLocations.get(blogname), 1)
-                    .filter(path -> !path.equals(dirLocations.get(blogname)))
-                    .map(dirLocations.get(blogname)::relativize);*/
-
             return Files.walk(dirLocations.get(blogname), 1)
                     .filter(path -> !path.equals(dirLocations.get(blogname)))
-                    //.map(Paths.get("C:/jHateSMMTemp/asdasd")::relativize)
+                    .filter(p -> p.toString().endsWith(".jpg"))
                     .map(ImageFile::new).collect(Collectors.toList());
 
         } catch (IOException e) {
@@ -97,6 +93,34 @@ public class InPowerWeEntrustStorageService implements StorageService{
         }
     }
 
+    public List<ImageFile> loadAllmp4(String blogname) {
+        try {
+
+            return Files.walk(dirLocations.get(blogname), 1)
+                    .filter(path -> !path.equals(dirLocations.get(blogname)))
+                    .filter(p -> p.toString().endsWith(".mp4"))
+                    .map(ImageFile::new).collect(Collectors.toList());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new StorageException("Failed to read stored files", e);
+        }
+    }
+
+    public List<ImageFile> loadToday(String blogname) {
+        try {
+
+            return Files.walk(dirLocations.get(blogname), 1)
+                    .filter(path -> !path.equals(dirLocations.get(blogname)))
+                    .filter(p -> p.toString().endsWith(".jpg"))
+                    //.map(Paths.get("C:/jHateSMMTemp/asdasd")::relativize)
+                    .map(ImageFile::new).collect(Collectors.toList());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new StorageException("Failed to read stored files", e);
+        }
+    }
 
     public Path load(String filename, String blogname) {
         return dirLocations.get(blogname).resolve(filename);
