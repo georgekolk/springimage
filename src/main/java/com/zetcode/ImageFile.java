@@ -1,5 +1,6 @@
 package com.zetcode;
 
+import java.io.File;
 import java.nio.file.Path;
 
 public class ImageFile {
@@ -11,7 +12,7 @@ public class ImageFile {
     private String likes;
     private String URI;
     private String fileNameId;
-
+    private File file;
     public ImageFile() {
     }
 
@@ -23,11 +24,17 @@ public class ImageFile {
     public ImageFile(String fileName, Path path) {
         this.fileName = fileName;
         this.path = path;
+        this.file = new File(String.valueOf(path));
     }
 
     public ImageFile(Path path) {
         this.path = path;
         this.fileName = path.getFileName().toString();
+        this.file = new File(String.valueOf(path));
+    }
+
+    public Long getLastModified(){
+        return this.file.lastModified();
     }
 
     public String getFileName() {

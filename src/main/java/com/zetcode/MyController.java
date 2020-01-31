@@ -1,13 +1,14 @@
-package com.zetcode.controller;
+package com.zetcode;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.zetcode.*;
@@ -38,9 +39,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Controller
 public class MyController {
 
-   private static List<Person> persons = new ArrayList<Person>();
-   private static List<Blog> dirs = new ArrayList<Blog>();
+    private static List<Person> persons = new ArrayList<Person>();
+    private static List<Blog> dirs = new ArrayList<Blog>();
     private static List<ImageFile> imageFileList = new ArrayList<ImageFile>();
+    private static List<ImageFile> imageFileListToRemove = new ArrayList<ImageFile>();
 
 
     Logger logger = LoggerFactory.getLogger(MyController.class);
@@ -123,20 +125,19 @@ public class MyController {
         return "listDirs";
     }
 
-    @RequestMapping(value = "/getdirs/{blogname}/mp4", method = RequestMethod.GET)
+    @RequestMapping(value = "/getdirs/{blogname}/latest", method = RequestMethod.GET)
     public String galleryToday(@PathVariable String blogname, Model model) throws IOException {
 
-        logger.error("/getdirs/{"+  blogname + "}");
-
         if (!inPowerWeEntrustStorageService.checkMap(blogname.toLowerCase())){
-
             model.addAttribute("message", "OMFG! NOT FOUND DIRS " + blogname);
-
             return "index";
-
         }else {
 
-            List<ImageFile> imageFileList = inPowerWeEntrustStorageService.loadAllmp4(blogname);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            String currentDate = sdf.format(new Date());
+
+            List<ImageFile> imageFileList = inPowerWeEntrustStorageService.loadAll(blogname);
 
             for (ImageFile imageFile : imageFileList) {
                 imageFile.setURI(ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -145,11 +146,17 @@ public class MyController {
                         .toUriString());
                 imageFile.setBlog(blogname);
                 imageFile.setFileNameId(imageFile.getFileName().substring(0, imageFile.getFileName().lastIndexOf('.')));
+
+                if (!currentDate.equals(sdf.format(imageFile.getLastModified()))){
+                    imageFileListToRemove.add(imageFile);
+                }
             }
+
+            imageFileList.removeAll(imageFileListToRemove);
 
             model.addAttribute("files", imageFileList);
 
-            return "listVids";
+            return "listFiles";
         }
     }
 

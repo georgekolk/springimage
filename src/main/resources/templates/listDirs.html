@@ -64,7 +64,9 @@
     <tr>
       <th scope="col">Name</th>
       <th scope="col">Url</th>
-      <th scope="col">Last Update</th>
+        <th scope="col">Url2</th>
+
+        <th scope="col">Last Update</th>
     </tr>
   </thead>
     <tbody>
@@ -72,6 +74,8 @@
         <td th:utext="${blog.name}">...
         </td>
         <td><a th:href="${blog.url}" th:text="${blog.url}" target="_blank" /></td>
+        <td><a th:href="${blog.url}+'latest/'" th:text="${blog.url}+'latest/'" target="_blank" /></td>
+
         <td th:utext="${blog.lastUpdate}">...</td>
     </tr>
   </tbody>
