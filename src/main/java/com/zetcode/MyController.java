@@ -39,7 +39,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Controller
 public class MyController {
 
-    private static List<Person> persons = new ArrayList<Person>();
     private static List<Blog> dirs = new ArrayList<Blog>();
     private static List<ImageFile> imageFileList = new ArrayList<ImageFile>();
     private static List<ImageFile> imageFileListToRemove = new ArrayList<ImageFile>();
@@ -55,13 +54,6 @@ public class MyController {
         this.storageService = storageService;
         this.inPowerWeEntrustStorageService = inPowerWeEntrustStorageService;
         this.sqLiteService = sqLiteService;
-
-
-    }
- 
-    static {
-        persons.add(new Person("Bill", "Gates"));
-        persons.add(new Person("Steve", "Jobs"));
     }
  
     @Value("${welcome.message}")
@@ -69,47 +61,6 @@ public class MyController {
  
     @Value("${error.message}")
     private String errorMessage;
-
-    @GetMapping("/lol")
-    public String index() {
-        return "ajax";
-    }
-
-
-    @RequestMapping(value = { "/personList" }, method = RequestMethod.GET)
-    public String personList(Model model) {
- 
-        model.addAttribute("persons", persons);
- 
-        return "personList";
-    }
- 
-    @RequestMapping(value = { "/addPerson" }, method = RequestMethod.GET)
-    public String showAddPersonPage(Model model) {
- 
-        PersonForm personForm = new PersonForm();
-        model.addAttribute("personForm", personForm);
- 
-        return "addPerson";
-    }
- 
-    @RequestMapping(value = { "/addPerson" }, method = RequestMethod.POST)
-    public String savePerson(Model model, @ModelAttribute("personForm") PersonForm personForm) {
- 
-        String firstName = personForm.getFirstName();
-        String lastName = personForm.getLastName();
- 
-        if (firstName != null && firstName.length() > 0 //
-                && lastName != null && lastName.length() > 0) {
-            Person newPerson = new Person(firstName, lastName);
-            persons.add(newPerson);
- 
-            return "redirect:/personList";
-        }
- 
-        model.addAttribute("errorMessage", errorMessage);
-        return "addPerson";
-    }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String gallery(Model model) throws IOException {
@@ -162,6 +113,14 @@ public class MyController {
 
     @DeleteMapping(value="/remove/{blogname}/{filename}")
     public ResponseEntity<Long> removePhotos(@PathVariable String filename, @PathVariable String blogname ){
+
+        System.out.println(filename + " " + blogname);
+        //var isRemoved = postService.delete(id);
+        return new ResponseEntity<>(666l, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value="/approve/{blogname}/{filename}")
+    public ResponseEntity<Long> approvePhotos(@PathVariable String filename, @PathVariable String blogname ){
 
         System.out.println(filename + " " + blogname);
         //var isRemoved = postService.delete(id);
