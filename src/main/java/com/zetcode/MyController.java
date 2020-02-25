@@ -48,12 +48,10 @@ public class MyController {
 
     private StorageService storageService;
     private InPowerWeEntrustStorageService inPowerWeEntrustStorageService;
-    private SQLiteService sqLiteService;
 
-    public MyController(StorageService storageService, InPowerWeEntrustStorageService inPowerWeEntrustStorageService, SQLiteService sqLiteService) {
+    public MyController(StorageService storageService, InPowerWeEntrustStorageService inPowerWeEntrustStorageService) {
         this.storageService = storageService;
         this.inPowerWeEntrustStorageService = inPowerWeEntrustStorageService;
-        this.sqLiteService = sqLiteService;
     }
  
     @Value("${welcome.message}")
@@ -116,6 +114,9 @@ public class MyController {
 
         System.out.println(filename + " " + blogname);
         //var isRemoved = postService.delete(id);
+
+        inPowerWeEntrustStorageService.delete(filename,blogname);
+
         return new ResponseEntity<>(666l, HttpStatus.OK);
     }
 
@@ -124,6 +125,7 @@ public class MyController {
 
         System.out.println(filename + " " + blogname);
         //var isRemoved = postService.delete(id);
+        inPowerWeEntrustStorageService.approve(filename, blogname);
         return new ResponseEntity<>(666l, HttpStatus.OK);
     }
 

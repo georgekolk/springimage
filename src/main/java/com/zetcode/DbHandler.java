@@ -48,6 +48,29 @@ public class DbHandler {
 
         return kok;
     }
+
+    public void setStateDeleted(String fileName, String tableName){
+        this.inPowersetState(fileName, tableName, "DELETED");
+    }
+
+    public void setStateApproved(String fileName, String tableName){
+        this.inPowersetState(fileName, tableName, "APPROVED");
+    }
+
+    private void inPowersetState(String fileName, String tableName, String state){
+
+        try (PreparedStatement statement = this.connection.prepareStatement(
+                "UPDATE " + tableName + " SET state = '" + state + "' WHERE fileName LIKE '%"+ fileName +"%';")) {
+
+
+            //ResultSet resultSet = statement.executeQuery("SELECT * FROM " + tableName + " WHERE fileName LIKE '%"+ fileName +"%';");
+            //statement.setObject(1, fileWithDateWhenItPosted.fileId);
+            //statement.setObject(2, fileWithDateWhenItPosted.filePostDate);
+            statement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 

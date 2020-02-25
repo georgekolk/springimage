@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,9 +29,9 @@ public class InPowerWeEntrustStorageService implements StorageService{
 
     private final Path rootLocation;
     private final List<String> dirs;
-    Logger logger = LoggerFactory.getLogger(InPowerWeEntrustStorageService.class);
+    private Logger logger = LoggerFactory.getLogger(InPowerWeEntrustStorageService.class);
     private final HashMap<String, Path> dirLocations;
-
+    private DbHandler dbHandler;
     @Autowired
     public InPowerWeEntrustStorageService(StorageProperties properties) {
         this.rootLocation = Paths.get(properties.getLocation());
@@ -39,12 +40,21 @@ public class InPowerWeEntrustStorageService implements StorageService{
     }
 
     @PostConstruct
-    public void init() {
+    public void init() throws SQLException {
 
             for (String dir:dirs) {
                 logger.error("dirs " + dir.toString());
                 dirLocations.put(dir.substring(dir.lastIndexOf("/")+1), Paths.get(dir));
             }
+
+        dbHandler = DbHandler.getInstance("jdbc:sqlite:C:/prod/inpower2.db");
+        logger.error("SQLiteService Service" + Paths.get("./uploads"));
+
+        for (String kkk: dbHandler.getDatabaseMetaData()) {
+            logger.error("SQLiteService Service " + kkk);
+
+        }
+
 
     }
 
@@ -140,7 +150,14 @@ public class InPowerWeEntrustStorageService implements StorageService{
 
     @Override
     public void deleteAll() {
+    }
 
+    public void approve(String filename, String blog) {
+        dbHandler.setStateApproved(filename,blog);
+    }
+
+    public void delete(String filename, String blog) {
+        dbHandler.setStateDeleted(filename, blog);
     }
 
 }
